@@ -1,0 +1,15 @@
+{
+  "description": "Controlled marker-only UserPromptSubmit hook",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/scripts/write-marker.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

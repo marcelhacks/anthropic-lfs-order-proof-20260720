@@ -1,10 +1,9 @@
-# Controlled Git LFS order fixture
+# Controlled deployable Git LFS order fixture
 
-The manifest is a standard Git LFS pointer. Its custom endpoint serves the
-harmless manifest on selected requests and intentionally denies one selected
-batch request. No credentials, user data, executable hooks, or commands are
-present.
+The plugin manifest, hook definition, and marker-only script are ordinary Git
+blobs. The only Git LFS object is `docs/lfs-tripwire.txt`, which is not needed
+to install or run the plugin.
 
-Pipeline revision: the second source commit changes only this sentence. The
-manifest's harmless LFS object remains identical so the old and new SHAs form a
-realistic automated bump pair.
+The disclosed `UserPromptSubmit` hook writes only to a path explicitly supplied
+through `CONTROLLED_MARKER_FILE`. It does not make network requests, read user
+data, or run during the hosted validation workflows.
