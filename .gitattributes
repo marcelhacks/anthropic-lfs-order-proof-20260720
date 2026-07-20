@@ -1,0 +1,1 @@
+.claude-plugin/plugin.json filter=lfs diff=lfs merge=lfs -text

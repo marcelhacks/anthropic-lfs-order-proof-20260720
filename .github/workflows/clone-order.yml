@@ -1,0 +1,43 @@
+name: Controlled LFS clone-order proof
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  clone-order:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Show unmodified runner LFS configuration
+        run: |
+          git --version
+          git lfs version
+          git config --show-origin --get-regexp 'filter\.lfs|lfs\.' || true
+
+      - name: Clone the controlled repository three times
+        env:
+          SOURCE_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          set -u
+          overall=0
+          for number in 1 2 3; do
+            dest="${RUNNER_TEMP}/clone-${number}"
+            set +e
+            GIT_TERMINAL_PROMPT=0 timeout 120 git clone --quiet --depth 1 -- "$SOURCE_URL" "$dest" >"${RUNNER_TEMP}/clone-${number}.log" 2>&1
+            rc=$?
+            set -e
+            manifest=false
+            if [ -f "$dest/.claude-plugin/plugin.json" ] && grep -q 'lfs-order-policy-control' "$dest/.claude-plugin/plugin.json"; then
+              manifest=true
+            fi
+            printf 'CLONE_RESULT number=%s exit=%s manifest=%s\n' "$number" "$rc" "$manifest"
+            sed -n '1,80p' "${RUNNER_TEMP}/clone-${number}.log"
+            if [ "$number" -eq 1 ] || [ "$number" -eq 3 ]; then
+              [ "$rc" -eq 0 ] && [ "$manifest" = true ] || overall=1
+            else
+              [ "$rc" -ne 0 ] || overall=1
+            fi
+          done
+          exit "$overall"
